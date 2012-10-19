@@ -3,7 +3,7 @@ package WebService::TwitterBootstrap::Download::Custom::Zip;
 use strict;
 use warnings;
 use File::Temp ();
-use Archive::Zip qw( AZ_OK );
+use Archive::Zip ();
 use Path::Class qw( dir );
 use Moose;
 
@@ -70,7 +70,7 @@ sub member_content
 {
   my($self, $name) = @_;
   my($content, $status) = $self->archive->contents($name);
-  die "$status" unless $status == AZ_OK;
+  die "$status" unless $status == Archive::Zip::AZ_OK;
   return $content;
 }
 
