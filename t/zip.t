@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 10;
+use Test::More tests => 11;
 use WebService::TwitterBootstrap::Download::Custom::Zip;
 use FindBin ();
 use Path::Class qw( file );
@@ -25,9 +25,12 @@ is $zip->archive->memberNamed('bogus.txt'), undef, "no member named bogus.txt";
 isa_ok $zip->archive->memberNamed('js/bootstrap.min.js'), 'Archive::Zip::ZipFileMember', "has member js/bootstrap.min.js";
 
 eq_or_diff 
-  eval { $zip->member_names }, 
-  [qw( img/glyphicons-halflings-white.png img/glyphicons-halflings.png js/bootstrap.min.js js/bootstrap.js css/bootstrap.css css/bootstrap.min.css)],
+  eval { [sort @{ $zip->member_names } ] }, 
+  [sort qw( img/glyphicons-halflings-white.png img/glyphicons-halflings.png js/bootstrap.min.js js/bootstrap.js css/bootstrap.css css/bootstrap.min.css)],
   'zip.member_names';
+diag $@ if $@;
+
+is eval { $zip->member_content('js/bootstrap.js') }, "some content\n", 'zip.member(js/bootstrap.js)';
 diag $@ if $@;
 
 my $save_filename = $zip->file->filename;
