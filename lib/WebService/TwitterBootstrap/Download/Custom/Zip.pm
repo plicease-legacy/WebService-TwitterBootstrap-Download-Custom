@@ -3,8 +3,8 @@ package WebService::TwitterBootstrap::Download::Custom::Zip;
 use strict;
 use warnings;
 use File::Temp ();
-use File::Spec;
 use Archive::Zip qw( AZ_OK );
+use Path::Class qw( dir );
 use Moose;
 
 # ABSTRACT: Zip file containing Twitter Bootstrap
@@ -72,6 +72,24 @@ sub member_content
   my($content, $status) = $self->archive->contents($name);
   die "$status" unless $status == AZ_OK;
   return $content;
+}
+
+=head2 $zip-E<gt>extract_all( $dir )
+
+Extract all members of the zip to the given directory.
+
+=cut
+
+sub extract_all
+{
+  my($self, $dir) = @_;
+  foreach my $member_name (@{ $self->member_names })
+  {
+    my $member_file = dir($dir)->file($member_name);
+    $member_file->dir->mkpath(0,0755);
+    $member_file->spew($self->member_content($member_name));
+  }
+  $self;
 }
 
 sub spew
