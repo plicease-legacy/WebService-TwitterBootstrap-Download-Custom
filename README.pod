@@ -25,17 +25,47 @@ The most common pattern is probably
 
 =over 4
 
-=item 1. fetch default values using the C<fetch_defaults> method
+=item 1. fetch default values 
 
-=item 2. filter out the jQuery plugins and css components you do not want
+Using the C<fetch_defalts> method:
 
-=item 3. replace any default variables with those appropriate for your project
+ use WebService::TwitterBootstrap::Download::Custom;
+ my $dl = WebService::TwitterBootstrap::Download::Custom->new;
+ $dl->fetch_defaults;
 
-=item 4. download your custom bootstrap using the C<download> method
+=item 2. filter
 
-=item 5. using the resultant L<WebService::TwitterBootstrap::Download::Custom::Zip> instance extract files using its C<extract_all> method.
+Remove any jQuery plugins or CSS components that you don't want.
+As an example here we are removing the tooltip component and the
+tab plugin.
+
+ @{ $dl->css } = grep !/^tooltip\.less$/,     @{ $dl->css };
+ @{ $dl->js  } = grep !/^bootstrap-tab\.js$/, @{ $dl->js };
+
+=item 3. modify variables
+
+Replace the values of any variables with new ones appropriate for your project
+
+ $dl->vars->{'@altFontFamily'} = '@serifFontFamily';
+
+=item 4. download
+
+Fetch the custom bootstrap using the C<download> method.
+
+ my $zip = $dl->download;
+
+=item 5. extract
+
+Using the resulting instance of L<WebService::TwitterBootstrap::Download::Custom::Zip>,
+extract files using its C<extract_all> method.
+
+ $zip->extract_all('/your/project/location');
 
 =back
+
+To visualize all of the defaults, it is probably worth looking at
+L<http://twitter.github.com/bootstrap/customize.html>, where the 
+defaults are retrieved.
 
 =head1 ATTRIBUTES
 

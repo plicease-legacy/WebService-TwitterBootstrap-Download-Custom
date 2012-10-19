@@ -1,1 +1,14 @@
---- {}
+---
+pod_spelling_system:
+  stopwords:
+    - img
+    - jQuery
+    - js
+    - plugins
+    - tooltip
+
+pod_coverage:
+  private:
+    - WebService::TwitterBootstrap::Download::Custom::Zip#AZ_OK
+    - WebService::TwitterBootstrap::Download::Custom::Zip#spew
+
