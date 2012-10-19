@@ -8,6 +8,7 @@ use Mojo::DOM;
 use Mojo::JSON;
 use WebService::TwitterBootstrap::Download::Custom::Zip;
 use Path::Class qw( file );
+use File::HomeDir;
 use Moose;
 
 # TODO cache
@@ -152,6 +153,18 @@ has ua => (
   default => sub { Mojo::UserAgent->new },
 );
 
+has _cache_dir => (
+  is       => 'ro',
+  isa      => 'Path::Class::Dir',
+  lazy     => 1,
+  default  => sub {
+    my $dir = Path::Class::Dir->new(
+      File::HomeDir->my_dist_data( 'WebService-TwitterBootstrap-Download-Custom', { create => 1 } ),
+    );
+    $dir;
+  },
+);
+
 =head1 METHODS
 
 =head2 $dl-E<gt>download
@@ -206,16 +219,26 @@ sub fetch_defaults
   @{ $self->img }  = ();
   %{ $self->vars } = ();
   
-  #my $tx = $self->ua->get("http://webcache.googleusercontent.com/search?q=cache:http://twitter.github.com/bootstrap/customize.html");
-  my $tx = $self->ua->get("http://twitter.github.com/bootstrap/customize.html");
-  
-  my $res = $tx->success;
-  unless($res)
+  my $dom;
+  my $cache_file = $self->_cache_dir->file('customize.html');
+  if(-e $cache_file && (-M $cache_file < 6))
   {
-    my($error,$code) = $tx->error;
-    die "$code $error";
+    $dom = Mojo::DOM->new(scalar $cache_file->slurp);
   }
-  my $dom = $res->dom;
+  else
+  {
+    #my $tx = $self->ua->get("http://webcache.googleusercontent.com/search?q=cache:http://twitter.github.com/bootstrap/customize.html");
+    my $tx = $self->ua->get("http://twitter.github.com/bootstrap/customize.html");
+  
+    my $res = $tx->success;
+    unless($res)
+    {
+      my($error,$code) = $tx->error;
+      die "$code $error";
+    }
+    $dom = Mojo::DOM->new($res->body);
+    $cache_file->spew($res->body);
+  }
   
   $dom->find('label.checkbox')->each(sub {
     my($dom) = @_;
