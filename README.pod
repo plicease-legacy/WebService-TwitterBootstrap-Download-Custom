@@ -6,6 +6,76 @@ WebService::TwitterBootstrap::Download::Custom - Download a customized version o
 
 version 0.01
 
+=head1 SYNOPSIS
+
+ use WebService::TwitterBootstrap::Download::Custom;
+ my $dl = WebService::TwitterBootstrap::Download::Custom->new;
+ # ... adjust js, css, vars and img attributes appropriately ...
+ $dl->fetch_defaults;
+ my $zip = $dl->download;
+ $zip->extract_all('/your/project/location');
+
+=head1 DESCRIPTION
+
+This module allows you to create a custom Twitter Bootstrap and download
+directly from the website without having to muck about with make files or
+node.js.
+
+The most common pattern is probably
+
+=over 4
+
+=item 1. fetch default values using the C<fetch_defaults> method
+
+=item 2. filter out the jQuery plugins and css components you do not want
+
+=item 3. replace any default variables with those appropriate for your project
+
+=item 4. download your custom bootstrap using the C<download> method
+
+=item 5. using the resultant L<WebService::TwitterBootstrap::Download::Custom::Zip> instance extract files using its C<extract_all> method.
+
+=back
+
+=head1 ATTRIBUTES
+
+=head2 js
+
+List reference containing the jQuery plugins to include in your
+custom bootstrap.
+
+=head2 css
+
+List reference containing the CSS components to include in your
+custom bootstrap.
+
+=head2 vars
+
+Hash table containing the variable/value pairs.
+
+=head2 img
+
+List reference containing the images to include in your custom bootstrap.
+
+=head2 labels
+
+Hash table containing human understandable labels for the CSS and jQuery
+plugins.
+
+=head1 METHODS
+
+=head2 $dl-E<gt>download
+
+Download your custom bootstrap.  This will return an instance of
+L<WebService::TwitterBootstrap::Download::Custom::Zip>, which can
+be interrogated to retrieve the various files that make up your
+custom bootstrap.  This method requires Internet access.
+
+=head2 $dl-E<gt>fetch_defaults
+
+Fetch the default values for the C<js>, C<css>, C<img> and C<var> attributes, and
+fill out the C<labels> attribute.  This method requires Internet access.
+
 =head1 AUTHOR
 
 Graham Ollis <perl@wdlabs.com>

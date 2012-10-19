@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use File::HomeDir::Test;
 use Test::More tests => 1;
 use WebService::TwitterBootstrap::Download::Custom;
 

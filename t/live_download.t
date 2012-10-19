@@ -1,9 +1,15 @@
 use strict;
 use warnings;
-use Test::More tests => 4;
+use File::HomeDir::Test;
+use Test::More;
 use WebService::TwitterBootstrap::Download::Custom;
 use File::Temp qw( tempdir );
 use Path::Class qw( dir );
+
+if($ENV{PLICEASE_LIVE})
+{ plan tests => 4 }
+else
+{ plan skip_all => 'live test disabled' }
 
 my $dl = WebService::TwitterBootstrap::Download::Custom->new(
   js   => ["bootstrap-button.js","bootstrap-collapse.js"],

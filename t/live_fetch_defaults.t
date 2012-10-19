@@ -1,7 +1,13 @@
 use strict;
 use warnings;
-use Test::More tests => 2;
+use File::HomeDir::Test;
+use Test::More;
 use WebService::TwitterBootstrap::Download::Custom;
+
+if($ENV{PLICEASE_LIVE})
+{ plan tests => 2 }
+else
+{ plan skip_all => 'live test disabled' }
 
 my $dl = WebService::TwitterBootstrap::Download::Custom->new;
 isa_ok $dl, 'WebService::TwitterBootstrap::Download::Custom';
