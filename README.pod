@@ -4,7 +4,7 @@ WebService::TwitterBootstrap::Download::Custom - Download a customized version o
 
 =head1 VERSION
 
-version 0.1
+version 0.01
 
 =head1 AUTHOR
 
