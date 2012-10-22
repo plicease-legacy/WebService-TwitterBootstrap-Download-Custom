@@ -9,6 +9,8 @@ use Mojo::JSON;
 use WebService::TwitterBootstrap::Download::Custom::Zip;
 use Path::Class qw( file );
 use File::HomeDir;
+use Scalar::Util qw( looks_like_number );
+use File::Temp qw( tempdir );
 use Moose;
 
 # TODO cache
@@ -146,6 +148,49 @@ has labels => (
   default => sub { {} },
 );
 
+=head2 cache
+
+Cache customizations of bootstrap.  That is, if you provide the same input
+customization it will used a local cached copy instead of consulting the
+website.  Cached copies are keept only for a set time and will be refreshed.
+
+Set this to 0 (zero) to turn of caching.   Set to 1 (one) to use the default
+location (somewhere in your home directory using L<File::HomeDir>).  Anything
+else will be treated as a directory bath to find the cache.
+
+This value gets converted and is used internally as a L<Path::Class::Dir>.
+
+=cut
+
+sub _default_cache_dir
+{
+  state $dir = Path::Class::Dir->new(
+    File::HomeDir->my_dist_data('WebService-TwitterBootstrap-Download-Custom', { create => 1 }),
+  );
+  $dir;
+}
+
+has cache => (
+  is       => 'ro',
+  isa      => 'Path::Class::Dir',
+);
+
+# intercept cache=1 and cache=0 and translate
+around BUILDARGS => sub
+{
+  my $orig = shift;
+  my $class = shift;
+  my $args = ref $_[0] ? $_[0] : { @_ };
+  $args->{cache} //= 1;
+  if(looks_like_number($args->{cache}) && $args->{cache} == 1)
+  { $args->{cache} = _default_cache_dir }
+  elsif($args->{cache})
+  { $args->{cache} = Path::Class::Dir->new($args->{cache}) }
+  else
+  { delete $args->{cache} }
+  $class->$orig($args);
+};
+
 has ua => (
   is      => 'ro',
   isa     => 'Mojo::UserAgent',
@@ -158,10 +203,8 @@ has _cache_dir => (
   isa      => 'Path::Class::Dir',
   lazy     => 1,
   default  => sub {
-    my $dir = Path::Class::Dir->new(
-      File::HomeDir->my_dist_data( 'WebService-TwitterBootstrap-Download-Custom', { create => 1 } ),
-    );
-    $dir;
+    my $self = shift;
+    return $self->cache // Path::Class::Dir->new(tempdir( CLEANUP => 1 ));
   },
 );
 
