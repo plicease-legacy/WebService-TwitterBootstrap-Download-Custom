@@ -18,7 +18,7 @@ Twitter Bootstrap website.
 =cut
 
 has file => (
-  is      => 'ro',
+  is      => 'rw',
   isa     => 'File::Temp',
   lazy    => 1,
   default => sub { 
@@ -32,7 +32,7 @@ has file => (
 );
 
 has archive => (
-  is      => 'ro',
+  is      => 'rw',
   isa     => 'Archive::Zip',
   lazy    => 1,
   default => sub {
@@ -95,8 +95,17 @@ sub extract_all
 sub spew
 {
   my($self, $content) = @_;
-  $self->file->print($content);
-  $self->file->close;
+  if(ref($content) eq 'Path::Class::File')
+  {
+    $self->archive(
+      Archive::Zip->new($content->stringify),
+    );
+  }
+  else
+  {
+    $self->file->print($content);
+    $self->file->close;
+  }
 }
 
 no Moose;

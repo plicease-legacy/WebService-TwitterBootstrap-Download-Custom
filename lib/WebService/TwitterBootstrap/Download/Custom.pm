@@ -11,6 +11,7 @@ use Path::Class qw( file );
 use File::HomeDir;
 use Scalar::Util qw( looks_like_number );
 use File::Temp qw( tempdir );
+use DBI;
 use Moose;
 
 # TODO cache
@@ -208,6 +209,75 @@ has _cache_dir => (
   },
 );
 
+has _cache_dbh => (
+  is      => 'ro',
+  lazy    => 1,
+  default => sub {
+    my($self) = @_;
+    my $dbfile = $self->_cache_dir->file('cache.sqlite');
+    my $dbh = DBI->connect("dbi:SQLite:dbname=$dbfile","","", { RaiseError => 1, AutoCommit => 1 });
+    $dbh->do(q{
+      CREATE TABLE IF NOT EXISTS zip (
+        id INTEGER PRIMARY KEY,
+        unix_timestamp INTEGER,
+        js VARCHAR,
+        css VARCHAR,
+        vars VARCHAR,
+        img VARCHAR,
+        filename VARCHAR
+      )
+    });
+    my $sth = $dbh->prepare(q{ SELECT id, filename FROM zip WHERE unix_timestamp < ? });
+    $sth->execute(time - 60*60*24*7);
+    while(my $h = $sth->fetchrow_hashref)
+    {
+      unlink $self->_cache_dir->file($h->{filename});
+      $dbh->do(q{ DELETE FROM zip WHERE id = ? }, undef, $h->{id});
+    }
+    $dbh;
+  },
+);
+
+sub _cache_sqlargs
+{
+  my($self) = @_;
+  (join(':', sort @{ $self->js   }),
+   join(':', sort @{ $self->css  }),
+   join(':', sort map { sprintf "%s=%s", $_ => $self->vars->{$_} } keys %{ $self->vars }),
+   join(':', sort @{ $self->img  }));
+}
+
+sub _cache_fetch
+{
+  my($self) = @_;
+  my $sth = $self->_cache_dbh->prepare(q{
+    SELECT
+      filename
+    FROM
+      zip
+    WHERE 
+      js   = ? AND
+      css  = ? AND
+      vars = ? AND
+      img  = ?
+  });
+  $sth->execute($self->_cache_sqlargs);
+  my $h = $sth->fetchrow_hashref;
+  return unless defined $h;
+  my $file = $self->_cache_dir->file($h->{filename});
+  return $file if -e $file;
+}
+
+sub _cache_store
+{
+  my($self, $file) = @_;
+  my $sth = $self->_cache_dbh->prepare(q{
+    REPLACE INTO zip (filename, unix_timestamp, js, css, vars, img) VALUES (?,?,?,?,?,?)
+  });
+  $sth->execute($file->basename, time, $self->_cache_sqlargs);
+  $self;
+}
+
 =head1 METHODS
 
 =head2 $dl-E<gt>download
@@ -223,25 +293,47 @@ sub download
 {
   my($self) = @_;
   
-  my $json = Mojo::JSON->new;
-  
-  my $tx = $self->ua->post_form('http://bootstrap.herokuapp.com/', {
-    js   => $json->encode($self->js),
-    css  => $json->encode($self->css),
-    vars => $json->encode($self->vars),
-    img  => $json->encode($self->img),
-  });
-  
-  my $res = $tx->success;
-  
-  unless($res)
-  {
-    my($error, $code) = $tx->error;
-    die "$code $error";
-  }
-
   my $zip = WebService::TwitterBootstrap::Download::Custom::Zip->new;
-  $zip->spew($res->body);
+  
+  if(my $cached_file = $self->_cache_fetch)
+  {
+    $zip->spew($cached_file);
+  }
+  else
+  {
+    my $json = Mojo::JSON->new;
+  
+    my $tx = $self->ua->post_form('http://bootstrap.herokuapp.com/', {
+      js   => $json->encode($self->js),
+      css  => $json->encode($self->css),
+      vars => $json->encode($self->vars),
+      img  => $json->encode($self->img),
+    });
+  
+    my $res = $tx->success;
+  
+    unless($res)
+    {
+      my($error, $code) = $tx->error;
+      die "$code $error";
+    }
+    
+    if($self->cache)
+    {
+      $zip->file(
+        File::Temp->new(
+          TEMPLATE => "bootstrapXXXXXX", 
+          SUFFIX   => '.zip',
+          DIR      => $self->cache->stringify,
+        ),
+      );
+    }
+    
+    $zip->spew($res->body);
+    
+    $self->_cache_store(Path::Class::File->new($zip->file->filename));
+  }
+  
   $zip;
 };
 
