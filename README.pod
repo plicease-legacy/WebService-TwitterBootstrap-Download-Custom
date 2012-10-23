@@ -120,7 +120,7 @@ fill out the C<labels> attribute.  This method requires Internet access.
 
 =head1 AUTHOR
 
-Graham Ollis <perl@wdlabs.com>
+Graham Ollis <plicease@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
