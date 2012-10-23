@@ -92,6 +92,18 @@ List reference containing the images to include in your custom bootstrap.
 Hash table containing human understandable labels for the CSS and jQuery
 plugins.
 
+=head2 cache
+
+Cache customizations of bootstrap.  That is, if you provide the same input
+customization it will used a local cached copy instead of consulting the
+website.  Cached copies are keept only for a set time and will be refreshed.
+
+Set this to 0 (zero) to turn of caching.   Set to 1 (one) to use the default
+location (somewhere in your home directory using L<File::HomeDir>).  Anything
+else will be treated as a directory bath to find the cache.
+
+This value gets converted and is used internally as a L<Path::Class::Dir>.
+
 =head1 METHODS
 
 =head2 $dl-E<gt>download
