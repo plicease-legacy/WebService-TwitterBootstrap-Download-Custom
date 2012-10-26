@@ -6,6 +6,7 @@ pod_spelling_system:
     - js
     - plugins
     - tooltip
+    - customizations
 
 pod_coverage:
   private:

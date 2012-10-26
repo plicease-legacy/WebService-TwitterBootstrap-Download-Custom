@@ -1,3 +1,5 @@
+=pod
+
 =head1 NAME
 
 WebService::TwitterBootstrap::Download::Custom - Download a customized version of Twitter Bootstrap
@@ -96,7 +98,7 @@ plugins.
 
 Cache customizations of bootstrap.  That is, if you provide the same input
 customization it will used a local cached copy instead of consulting the
-website.  Cached copies are keept only for a set time and will be refreshed.
+website.  Cached copies are kept only for a set time and will be refreshed.
 
 Set this to 0 (zero) to turn of caching.   Set to 1 (one) to use the default
 location (somewhere in your home directory using L<File::HomeDir>).  Anything
