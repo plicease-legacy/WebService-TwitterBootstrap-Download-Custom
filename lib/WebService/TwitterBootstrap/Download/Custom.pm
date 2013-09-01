@@ -380,10 +380,8 @@ sub fetch_defaults
     my $label = $dom->text;
     my $value = $dom->find('input')->first->attrs('value');
     $self->labels->{$value} = $label;
-    given($value) {
-      when(/\.less$/) { push @{ $self->css }, $value }
-      when(/\.js$/)   { push @{ $self->js  }, $value }
-    }
+    push @{ $self->css }, $value if $value =~ /\.less$/;
+    push @{ $self->js  }, $value if $value =~ /\.js$/;
   });
   
   my $key;
