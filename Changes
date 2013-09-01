@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.02      2013-09-01 08:08:48 -0400
   - new URL
   - mojo 4.x compat
 
