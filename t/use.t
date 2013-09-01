@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-BEGIN { eval { use EV; } }
+BEGIN { eval q{ use EV; } }
 use Test::More tests => 2;
 
 use_ok 'WebService::TwitterBootstrap::Download::Custom';
