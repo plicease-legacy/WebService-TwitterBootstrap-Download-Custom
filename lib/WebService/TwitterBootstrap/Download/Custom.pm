@@ -303,7 +303,7 @@ sub download
   {
     my $json = Mojo::JSON->new;
   
-    my $tx = $self->ua->post_form('http://bootstrap.herokuapp.com/', {
+    my $tx = $self->ua->post('http://bootstrap.herokuapp.com/' => form => {
       js   => $json->encode($self->js),
       css  => $json->encode($self->css),
       vars => $json->encode($self->vars),
