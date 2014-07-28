@@ -19,7 +19,7 @@ node.js.
 
 The most common pattern is probably
 
-1. fetch default values 
+- 1. fetch default values 
 
     Using the `fetch_defalts` method:
 
@@ -27,7 +27,7 @@ The most common pattern is probably
         my $dl = WebService::TwitterBootstrap::Download::Custom->new;
         $dl->fetch_defaults;
 
-2. filter
+- 2. filter
 
     Remove any jQuery plugins or CSS components that you don't want.
     As an example here we are removing the tooltip component and the
@@ -36,21 +36,21 @@ The most common pattern is probably
         @{ $dl->css } = grep !/^tooltip\.less$/,     @{ $dl->css };
         @{ $dl->js  } = grep !/^bootstrap-tab\.js$/, @{ $dl->js };
 
-3. modify variables
+- 3. modify variables
 
     Replace the values of any variables with new ones appropriate for your project
 
         $dl->vars->{'@altFontFamily'} = '@serifFontFamily';
 
-4. download
+- 4. download
 
     Fetch the custom bootstrap using the `download` method.
 
         my $zip = $dl->download;
 
-5. extract
+- 5. extract
 
-    Using the resulting instance of [WebService::TwitterBootstrap::Download::Custom::Zip](http://search.cpan.org/perldoc?WebService::TwitterBootstrap::Download::Custom::Zip),
+    Using the resulting instance of [WebService::TwitterBootstrap::Download::Custom::Zip](https://metacpan.org/pod/WebService::TwitterBootstrap::Download::Custom::Zip),
     extract files using its `extract_all` method.
 
         $zip->extract_all('/your/project/location');
@@ -91,17 +91,17 @@ customization it will used a local cached copy instead of consulting the
 website.  Cached copies are kept only for a set time and will be refreshed.
 
 Set this to 0 (zero) to turn of caching.   Set to 1 (one) to use the default
-location (somewhere in your home directory using [File::HomeDir](http://search.cpan.org/perldoc?File::HomeDir)).  Anything
+location (somewhere in your home directory using [File::HomeDir](https://metacpan.org/pod/File::HomeDir)).  Anything
 else will be treated as a directory bath to find the cache.
 
-This value gets converted and is used internally as a [Path::Class::Dir](http://search.cpan.org/perldoc?Path::Class::Dir).
+This value gets converted and is used internally as a [Path::Class::Dir](https://metacpan.org/pod/Path::Class::Dir).
 
 # METHODS
 
 ## $dl->download
 
 Download your custom bootstrap.  This will return an instance of
-[WebService::TwitterBootstrap::Download::Custom::Zip](http://search.cpan.org/perldoc?WebService::TwitterBootstrap::Download::Custom::Zip), which can
+[WebService::TwitterBootstrap::Download::Custom::Zip](https://metacpan.org/pod/WebService::TwitterBootstrap::Download::Custom::Zip), which can
 be interrogated to retrieve the various files that make up your
 custom bootstrap.  This method requires Internet access.
 
